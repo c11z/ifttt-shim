@@ -1,7 +1,3 @@
-import NativePackagerKeys._
-
-packageArchetype.java_application
-
 name := "stravashim"
 
 organization := "com.c11z"
@@ -9,7 +5,7 @@ organization := "com.c11z"
 version := "0.1"
 
 // Scala version
-scalaVersion := "2.11.6"
+scalaVersion := "2.11.5"
 
 // These options will be used for *all* versions.
 scalacOptions ++= Seq(
@@ -26,6 +22,8 @@ scalacOptions ++= Seq(
 )
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
+
+enablePlugins(JavaAppPackaging)
 
 val akka = "2.3.9"
 val spray = "1.3.3"

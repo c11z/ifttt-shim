@@ -14,8 +14,8 @@ object Boot extends App {
 
   // create and start our service actor
   val service = system.actorOf(Props[StravaShimActor], "strava-shim-service")
-
+  val port = Properties.envOrElse("PORT", "8080").toInt
   implicit val timeout = Timeout(5.seconds)
   // start a new HTTP server on port 8080 with our service actor as the handler
-  IO(Http) ? Http.Bind(service, interface = "0.0.0.0", port = 5000)
+  IO(Http) ? Http.Bind(service, interface = "0.0.0.0", port = port)
 }
