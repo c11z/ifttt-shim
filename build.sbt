@@ -1,3 +1,7 @@
+import NativePackagerKeys._
+
+packageArchetype.java_application
+
 name := "stravashim"
 
 organization := "com.c11z"
@@ -22,8 +26,6 @@ scalacOptions ++= Seq(
 )
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
-
-enablePlugins(JavaAppPackaging)
 
 val akka = "2.3.9"
 val spray = "1.3.3"
