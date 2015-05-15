@@ -5,7 +5,7 @@ organization := "com.c11z"
 version := "0.1"
 
 // Scala version
-scalaVersion := "2.11.5"
+scalaVersion := "2.11.6"
 
 // These options will be used for *all* versions.
 scalacOptions ++= Seq(
