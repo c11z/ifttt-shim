@@ -15,46 +15,33 @@ class StravaShimSpec extends FlatSpec with Matchers with Directives with Scalate
   val defaultHeaders: List[HttpHeader] = List(
     Accept(`application/json`),
     `Accept-Charset`(`UTF-8`),
-    RawHeader("IFTTT-Channel-Key", "vFRqPGZBmZjB8JPp3mBFqOdt"),
+    RawHeader("IFTTT-Channel-Key", "wq3U2-THKBYt08VBJOmT_B304rhQD6MND5friCCH_KYJIvhmKGvC-MH72weSPCQ3"),
     RawHeader("X-Request-ID", "0715f98e65f749aba2fc243eac1e3c09")
   )
 
-  val req = HttpRequest()
+  val badHeaders = List(
+    Accept(`application/json`),
+    `Accept-Charset`(`UTF-8`),
+    RawHeader("IFTTT-Channel-Key", "INVALID"),
+    RawHeader("X-Request-ID", "0715f98e65f749aba2fc243eac1e3c09")
+  )
 
-  "StravaShim for IFTTT" should "have status endpoint" in {
+  "StravaShim for IFTTT" should "not find anything at home" in {
+    Get() ~> shimRoute ~> check {
+      handled should be(false)
+    }
+  }
+
+  "Status endpoint" should "succeed if passed proper Channel Key" in {
     Get("/ifttt/v1/status").withHeaders(defaultHeaders) ~> shimRoute ~> check {
       status should equal(OK)
       mediaType should equal(`application/json`)
     }
   }
 
-  it should "not find anything at home" in {
-    Get() ~> shimRoute ~> check {
-      handled should be(false)
+  it should "fail if the the Channel Key is invalid" in {
+    Get("/ifttt/v1/status").withHeaders(badHeaders) ~> shimRoute ~> check {
+      status should equal(Unauthorized)
     }
   }
-
-  // "Strava shim for IFTTT should" - {
-
-  //   "return a greeting for GET requests to the root path" in {
-  //     Get() ~> shimRoute ~> check {
-  //       status should equal(OK)
-  //       entity.toString should include("IFTTT")
-  //     }
-  //   }
-
-  //   "leave GET requests to other paths unhandled" in {
-  //     Get("/kermit") ~> shimRoute ~> check {
-  //       handled should be(false)
-  //     }
-  //   }
-
-  //   "return a MethodNotAllowed error for PUT requests to the root path" in {
-  //     Put() ~> sealRoute(shimRoute) ~> check {
-  //       status == MethodNotAllowed
-  //       entity.toString === "HTTP method not allowed, supported methods: GET"
-  //     }
-  //   }
-  // }
-
 }

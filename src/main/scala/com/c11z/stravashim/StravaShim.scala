@@ -14,13 +14,13 @@ class StravaShimActor extends Actor with StravaShimService with ActorLogging {
 
 trait StravaShimService extends HttpService {
   implicit def executionContext: ExecutionContextExecutor = actorRefFactory.dispatcher
+  val CHANNEL_KEY = "wq3U2-THKBYt08VBJOmT_B304rhQD6MND5friCCH_KYJIvhmKGvC-MH72weSPCQ3"
 
   val shimRoute = {
     (pathPrefix("ifttt" / "v1") & respondWithMediaType(`application/json`) ) {
-      path("status") {
-        get {
-          complete(OK)
-        }
+      (path("status") & headerValueByName("IFTTT-Channel-Key") & get) { channelKey =>
+        if(channelKey == CHANNEL_KEY) complete(OK)
+        else complete(Unauthorized)
       }
     }
   }
