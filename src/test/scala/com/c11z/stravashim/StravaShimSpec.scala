@@ -15,7 +15,7 @@ class StravaShimSpec extends FlatSpec with Matchers with Directives with Scalate
   val defaultHeaders: List[HttpHeader] = List(
     Accept(`application/json`),
     `Accept-Charset`(`UTF-8`),
-    RawHeader("IFTTT-Channel-Key", "wq3U2-THKBYt08VBJOmT_B304rhQD6MND5friCCH_KYJIvhmKGvC-MH72weSPCQ3"),
+    RawHeader("IFTTT-Channel-Key", CHANNEL_KEY),
     RawHeader("X-Request-ID", "0715f98e65f749aba2fc243eac1e3c09")
   )
 
@@ -41,6 +41,19 @@ class StravaShimSpec extends FlatSpec with Matchers with Directives with Scalate
 
   it should "fail if the the Channel Key is invalid" in {
     Get("/ifttt/v1/status").withHeaders(badHeaders) ~> shimRoute ~> check {
+      status should equal(Unauthorized)
+    }
+  }
+
+  "test/setup endpoint" should "Allow post request and return an accessToken" in {
+    Post("/ifttt/v1/test/setup").withHeaders(defaultHeaders) ~> shimRoute ~> check {
+      status should equal(OK)
+      responseAs[String] === TEST_RESPONSE
+    }
+  }
+
+  it should "Fail post request if the Channel Key is invalid" in {
+    Post("/ifttt/v1/test/setup").withHeaders(badHeaders) ~> shimRoute ~> check {
       status should equal(Unauthorized)
     }
   }
