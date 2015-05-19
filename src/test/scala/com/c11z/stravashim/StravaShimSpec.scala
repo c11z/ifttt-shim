@@ -15,7 +15,7 @@ class StravaShimSpec extends FlatSpec with Matchers with Directives with Scalate
   val defaultHeaders: List[HttpHeader] = List(
     Accept(`application/json`),
     `Accept-Charset`(`UTF-8`),
-    RawHeader("IFTTT-Channel-Key", CHANNEL_KEY),
+    RawHeader("IFTTT-Channel-Key", secret.getString("ifttt-channel-key")),
     RawHeader("X-Request-ID", "0715f98e65f749aba2fc243eac1e3c09")
   )
 
@@ -48,7 +48,7 @@ class StravaShimSpec extends FlatSpec with Matchers with Directives with Scalate
   "test/setup endpoint" should "Allow post request and return an accessToken" in {
     Post("/ifttt/v1/test/setup").withHeaders(defaultHeaders) ~> shimRoute ~> check {
       status should equal(OK)
-      responseAs[String] === TEST_RESPONSE
+      responseAs[String] === test.getString("setup-response")
     }
   }
 

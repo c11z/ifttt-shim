@@ -1,3 +1,4 @@
+
 name := "stravashim"
 
 organization := "com.c11z"
@@ -22,8 +23,6 @@ scalacOptions ++= Seq(
 )
 
 javacOptions ++= Seq("-Xlint:unchecked", "-Xlint:deprecation")
-
-enablePlugins(JavaAppPackaging)
 
 val akka = "2.3.9"
 val spray = "1.3.3"
@@ -50,7 +49,7 @@ libraryDependencies ++= Seq (
   ,"org.json4s" %% "json4s-jackson" % "3.2.10"
   // ,"com.typesafe.play" %% "play-json" % "2.4.0-M2"
   // -- config --
-  ,"com.typesafe" % "config" % "1.2.1"
+  ,"com.typesafe" % "config" % "1.3.0"
 )
 
 /* you may need these repos */
@@ -62,4 +61,6 @@ resolvers ++= Seq(
 
 fork := true
 
-Revolver.settings
+Revolver.settings: Seq[sbt.Def.Setting[_]]
+
+enablePlugins(JavaAppPackaging)
