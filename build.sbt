@@ -46,10 +46,12 @@ libraryDependencies ++= Seq (
   ,"io.spray" %% "spray-client" % spray
   ,"io.spray" %% "spray-testkit" % spray % "test"
   // -- json --
-  ,"org.json4s" %% "json4s-jackson" % "3.2.10"
+  ,"org.json4s" %% "json4s-native" % "3.2.11"
   // ,"com.typesafe.play" %% "play-json" % "2.4.0-M2"
   // -- config --
   ,"com.typesafe" % "config" % "1.3.0"
+  // -- Client --
+  ,"net.databinder.dispatch" %% "dispatch-core" % "0.11.2"
 )
 
 /* you may need these repos */
