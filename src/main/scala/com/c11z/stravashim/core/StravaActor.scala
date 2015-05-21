@@ -9,9 +9,6 @@ import org.json4s.JsonAST.JValue
 import org.json4s._
 import org.json4s.native.JsonMethods._
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
-
 
 /**
  * Created by c11z on 5/20/15.
@@ -42,12 +39,16 @@ trait StravaOptions {
   }
 
   def userFromAthlete(token: String) = {
-    val res: Future[JValue] = StravaClient.getAthlete(token)
-    val json = Await.result(res, 2.seconds)
-    val JString(first) = json \ "firstname"
-    val JString(last) = json \ "lastname"
-    val JInt(id) = json \ "id"
-    Json(parse(s"""{"data":{"name": "${first} ${last}", "id": "${id}"}}"""))
+    val res: Option[JValue] = StravaClient.getAthlete(token)
+    res match {
+      case Some(json) =>
+//        val json = Await.result(res, 2.seconds)
+        val JString(first) = json \ "firstname"
+        val JString(last) = json \ "lastname"
+        val JInt(id) = json \ "id"
+        Json(parse(s"""{"data":{"name": "${first} ${last}", "id": "${id}"}}"""))
+      case None => Bad("Unable to request Athlete from Strava")
+    }
   }
 }
 
@@ -73,7 +74,7 @@ object StravaClient {
   }
 
   def getAthlete(token: String) = {
-    val req = (stravaHost / "athlete").addHeader("Authorization", token).GET
-    stravaHttp(req OK asJson)
+    val req: Req = (stravaHost / "athlete").addHeader("Authorization", token).GET
+    stravaHttp(req OK asJson).completeOption
   }
 }
