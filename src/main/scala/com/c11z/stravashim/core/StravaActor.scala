@@ -9,6 +9,8 @@ import org.json4s.JsonAST.JValue
 import org.json4s._
 import org.json4s.native.JsonMethods._
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
 /**
  * Created by c11z on 5/20/15.
@@ -39,10 +41,9 @@ trait StravaOptions {
   }
 
   def userFromAthlete(token: String) = {
-    val res: Option[JValue] = StravaClient.getAthlete(token)
-    res match {
+    val res = StravaClient.getAthlete(token)
+    Await.result(res, 2.seconds) match {
       case Some(json) =>
-//        val json = Await.result(res, 2.seconds)
         val JString(first) = json \ "firstname"
         val JString(last) = json \ "lastname"
         val JInt(id) = json \ "id"
@@ -75,6 +76,6 @@ object StravaClient {
 
   def getAthlete(token: String) = {
     val req: Req = (stravaHost / "athlete").addHeader("Authorization", token).GET
-    stravaHttp(req OK asJson).completeOption
+    stravaHttp(req OK asJson).option
   }
 }
