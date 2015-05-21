@@ -1,6 +1,6 @@
 package com.c11z.stravashim
 
-import com.c11z.stravashim.api.StravaShimService
+import com.c11z.stravashim.api.ShimService
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{FlatSpec, Matchers}
 import spray.http.GenericHttpCredentials
@@ -11,7 +11,7 @@ import spray.http.StatusCodes._
 import spray.routing.Directives
 import spray.testkit.ScalatestRouteTest
 
-class StravaShimSpec extends FlatSpec with Matchers with Directives with ScalatestRouteTest with StravaShimService {
+class ShimSpec extends FlatSpec with Matchers with Directives with ScalatestRouteTest with ShimService {
   def actorRefFactory = system
 
   val conf = ConfigFactory.load()

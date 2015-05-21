@@ -1,5 +1,7 @@
 package com.c11z.stravashim.domain
 
+import org.json4s.JsonAST.JValue
+
 /**
  * Created by c11z on 5/20/15.
  */
@@ -10,7 +12,7 @@ sealed trait ResponseMessage
  * Typical Response message with json body
  * @param json response body as json string
  */
-case class Json(json: String) extends ResponseMessage
+case class Json(json: JValue) extends ResponseMessage
 case class Good() extends ResponseMessage
 case class Bad(message: String) extends ResponseMessage
 

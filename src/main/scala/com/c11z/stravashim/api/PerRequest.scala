@@ -32,13 +32,13 @@ trait PerRequest extends Actor with Json4sSupport {
   target ! message
 
   def receive = {
-    case Good() => complete(OK, "")
+    case Good() => complete(OK)
     case Bad(message) => complete(Unauthorized, message)
     case Json(body) => complete(OK, body)
   }
 
-  def complete[T <: AnyRef](status: StatusCode, body: T, headers: List[HttpHeader] = List()) = {
-    r.withHttpResponseHeadersMapped(oldheaders => oldheaders:::headers).complete(status, body)
+  def complete[T <: AnyRef](status: StatusCode, obj: T = Nil, headers: List[HttpHeader] = List()) = {
+    r.withHttpResponseHeadersMapped(oldheaders => oldheaders:::headers).complete(status, obj)
     stop(self)
   }
 

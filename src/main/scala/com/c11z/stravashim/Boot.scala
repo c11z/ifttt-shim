@@ -4,7 +4,7 @@ import akka.actor.{ActorSystem, Props}
 import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout
-import com.c11z.stravashim.api.StravaShimActor
+import com.c11z.stravashim.api.ShimActor
 import spray.can.Http
 
 import scala.concurrent.duration._
@@ -16,7 +16,7 @@ object Boot extends App {
   implicit val system = ActorSystem("strava-shim-system")
 
   // create and start our service actor
-  val service = system.actorOf(Props[StravaShimActor], "strava-shim-service")
+  val service = system.actorOf(Props[ShimActor], "strava-shim-service")
 
   // !!IMPORTANT Allowing port to be sourced from Properties is what makes Heroku work!!
   val port = Properties.envOrElse("PORT", "8080").toInt
