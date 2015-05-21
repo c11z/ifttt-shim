@@ -5,6 +5,8 @@ import akka.actor._
 import com.c11z.stravashim.api.PerRequest.WithProps
 import com.c11z.stravashim.domain.{Bad, Good, Json, RequestMessage}
 import org.json4s.DefaultFormats
+import org.json4s._
+import org.json4s.native.JsonMethods._
 import spray.http.StatusCodes._
 import spray.http.{HttpHeader, StatusCode}
 import spray.httpx.Json4sSupport
@@ -33,7 +35,9 @@ trait PerRequest extends Actor with Json4sSupport {
 
   def receive = {
     case Good() => complete(OK)
-    case Bad(message) => complete(Unauthorized, message)
+    case Bad(message) =>
+      val json = parse( s"""{"errors": [{"message": "${message}"}]}""")
+      complete(Unauthorized, json)
     case Json(body) => complete(OK, body)
   }
 
