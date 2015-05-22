@@ -3,10 +3,8 @@ package com.c11z.stravashim.api
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor._
 import com.c11z.stravashim.api.PerRequest.WithProps
-import com.c11z.stravashim.domain.{Bad, Good, Json, RequestMessage}
-import org.json4s.DefaultFormats
-import org.json4s._
-import org.json4s.native.JsonMethods._
+import com.c11z.stravashim.domain.{Http200, Http200Empty, Http401, RequestMessage}
+import org.json4s.{DefaultFormats, _}
 import spray.http.StatusCodes._
 import spray.http.{HttpHeader, StatusCode}
 import spray.httpx.Json4sSupport
@@ -34,12 +32,12 @@ trait PerRequest extends Actor with Json4sSupport {
   target ! message
 
   def receive = {
-    case Good() => complete(OK)
-    case Bad(message) =>
-      val json = parse( s"""{"errors": [{"message": "${message}"}]}""")
-      complete(Unauthorized, json)
-    case Json(body) => complete(OK, body)
+    case Http200Empty() => complete(OK)
+    case Http401(messages) => complete(Unauthorized, convertToJson(Map("errors" -> messages)))
+    case Http200(content) => complete(OK, convertToJson(content))
   }
+
+  def convertToJson(a: Any) = Extraction.decompose(a)(json4sFormats)
 
   def complete[T <: AnyRef](status: StatusCode, obj: T = Nil, headers: List[HttpHeader] = List()) = {
     r.withHttpResponseHeadersMapped(oldheaders => oldheaders:::headers).complete(status, obj)

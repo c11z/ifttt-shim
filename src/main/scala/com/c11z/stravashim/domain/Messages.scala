@@ -1,6 +1,5 @@
 package com.c11z.stravashim.domain
 
-import org.json4s.JsonAST.JValue
 
 /**
  * Created by c11z on 5/20/15.
@@ -9,12 +8,12 @@ import org.json4s.JsonAST.JValue
 sealed trait ResponseMessage
 
 /**
- * Typical Response message with json body
- * @param json response body as json string
+ * Typical Response message with status code 200 OK
+ * @param content Anything that can be processed with json4s Extraction.decompose(a: Any)
  */
-case class Json(json: JValue) extends ResponseMessage
-case class Good() extends ResponseMessage
-case class Bad(message: String) extends ResponseMessage
+case class Http200(content: Any) extends ResponseMessage
+case class Http200Empty() extends ResponseMessage
+case class Http401(messages: List[Map[String, String]]) extends ResponseMessage
 
 sealed trait RequestMessage
 

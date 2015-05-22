@@ -5,7 +5,7 @@ import com.c11z.stravashim.domain._
 import com.typesafe.config.ConfigFactory
 import dispatch.Defaults._
 import dispatch._
-import org.json4s.JsonAST.JValue
+import org.json4s.JsonDSL._
 import org.json4s._
 import org.json4s.native.JsonMethods._
 
@@ -28,15 +28,24 @@ trait StravaOptions {
 
   def reportStatus(channelKey: String) = {
     validateChannelKey(channelKey) match {
-      case true => Good()
-      case false => Bad("Invalid IFTTT-Channel-Key")
+      case true => Http200Empty()
+      case false => Http401(List(Map("Invalid IFTTT-Channel-Key" ->
+        "The Channel Key is present but not valid for this channel")))
     }
   }
 
   def returnTestSetup(channelKey: String) = {
     validateChannelKey(channelKey) match {
-      case true => Json(parse(test.getString("setup-response")))
-      case false => Bad("Invalid IFTTT-Channel-Key")
+      case true =>
+        val token = test.getString("access-token")
+        val content =
+          ("data" ->
+            ("accessToken" -> token) ~
+            ("samples" -> Nil)
+            )
+        Http200(content)
+      case false => Http401(List(Map("Invalid IFTTT-Channel-Key" ->
+        "The Channel Key is present but not valid for this channel")))
     }
   }
 
@@ -47,8 +56,8 @@ trait StravaOptions {
         val JString(first) = json \ "firstname"
         val JString(last) = json \ "lastname"
         val JInt(id) = json \ "id"
-        Json(parse(s"""{"data":{"name": "${first} ${last}", "id": "${id}"}}"""))
-      case None => Bad("Unable to request Athlete from Strava")
+        Http200(parse(s"""{"data":{"name": "${first} ${last}", "id": "${id}"}}"""))
+      case None => Http401(List(Map("Strava Request Failed" -> "Unable to request Athlete from Strava")))
     }
   }
 }

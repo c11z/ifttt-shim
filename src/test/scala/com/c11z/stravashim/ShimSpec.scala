@@ -49,7 +49,6 @@ class ShimSpec extends FlatSpec with Matchers with Directives with ScalatestRout
   "test/setup endpoint" should "Allow post request and return an accessToken" in {
     Post("/ifttt/v1/test/setup").withHeaders(testHeaders) ~> shimRoute ~> check {
       status should equal(OK)
-      responseAs[String] === test.getString("setup-response")
     }
   }
 
