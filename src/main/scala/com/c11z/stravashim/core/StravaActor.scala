@@ -41,10 +41,7 @@ trait StravaOptions {
     validateChannelKey(channelKey) match {
       case true =>
         val token = test.getString("access-token")
-        val content =
-          "data" ->
-            ("accessToken" -> token) ~
-            ("samples" -> Nil)
+        val content = "data" -> ("accessToken" -> token) ~ ("samples" -> Nil)
         Http200(content)
       case false => Http401("The Channel Key is present but not valid for this channel")
     }
