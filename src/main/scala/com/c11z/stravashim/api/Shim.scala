@@ -18,6 +18,7 @@ class ShimActor extends Actor with ShimService with ActorLogging {
 trait ShimService extends HttpService with PerRequestCreator {
   implicit def executionContext: ExecutionContextExecutor = actorRefFactory.dispatcher
 
+  // TODO: Eventually source routes from specific domains that way the shim can stay unopinionated.
   val shimRoute = {
     (pathPrefix("ifttt" / "v1") & respondWithMediaType(`application/json`) & encodeResponse(Gzip)) {
       headerValueByName("IFTTT-Channel-Key") { channelKey =>

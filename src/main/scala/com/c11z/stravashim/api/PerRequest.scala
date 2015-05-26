@@ -13,11 +13,6 @@ import spray.routing.RequestContext
 import scala.concurrent.duration._
 
 
-/**
- * Created by c11z on 5/20/15.
- */
-
-
 trait PerRequest extends Actor with Json4sSupport {
   def r: RequestContext
   def target: ActorRef

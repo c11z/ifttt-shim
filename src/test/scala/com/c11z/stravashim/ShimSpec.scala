@@ -14,7 +14,7 @@ import spray.testkit.ScalatestRouteTest
 class ShimSpec extends FlatSpec with Matchers with Directives with ScalatestRouteTest with ShimService {
   def actorRefFactory = system
 
-  val conf = ConfigFactory.load()
+  val conf = ConfigFactory.load().getConfig("strava")
   val secret = conf.getConfig("secret")
   val test = conf.getConfig("test")
 

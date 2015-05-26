@@ -2,6 +2,7 @@ package com.c11z.stravashim.core
 
 import akka.actor.{Actor, ActorRef}
 import com.c11z.stravashim.domain._
+import com.github.nscala_time.time.Imports._
 import com.typesafe.config.ConfigFactory
 import dispatch.Defaults._
 import dispatch._
@@ -14,15 +15,11 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success}
 
-import com.github.nscala_time.time.Imports._
-
 /**
- * Created by c11z on 5/20/15.
+ * Describes operations with the Strava API in response to IFTTT requests.
  */
-
-
-trait StravaOptions {
-  val conf = ConfigFactory.load()
+trait StravaOperations {
+  val conf = ConfigFactory.load().getConfig("strava")
   val secret = conf.getConfig("secret")
   val test = conf.getConfig("test")
 
@@ -39,6 +36,11 @@ trait StravaOptions {
     }
   }
 
+  /**
+   * Handles test/setup endpoint, returns a valid test token for IFTTT to use in testing the channel.
+   * @param channelKey A key identifying IFTTT's access to this channel.
+   * @return
+   */
   def testSetup(channelKey: String) = {
     validateChannelKey(channelKey) match {
       case true =>
@@ -50,13 +52,12 @@ trait StravaOptions {
   }
 
   /**
-   * Calls Strava and parses Athlete into IFTTT User
+   * Handles user/info endpoint. Calls Strava athlete and transforms to IFTTT user
    * @param token OAuth token for api call
-   * @param requestor Immutable copy if the sender to resolve future
+   * @param requestor Immutable copy of the sender to resolve future
    */
   def athlete(token: String, requestor: ActorRef) = {
     val athleteF = StravaClient.getAthlete(token)
-
     athleteF onComplete {
       case Success(athlete) =>
         val JString(first) = athlete \ "firstname"
@@ -68,25 +69,35 @@ trait StravaOptions {
     }
   }
 
+  /**
+   * Handles triggers/new_personal_record endpoint. Gets the last 'athlete-activity-limit'(from application.conf)
+   * of activity summaries, concurrently calls the full activities, extracts the personal records from the segment
+   * efforts and returns a collection of personal record details. A very heavy operation requiring ~ 21 api calls.
+   * @param token OAuth token for api call
+   * @param trigger Json entity identifying trigger call and containing parameters
+   * @param requestor Immutable copy of the sender to resolve future
+   */
   def personalRecords(token: String, trigger: String, requestor: ActorRef) = {
     val jsonReq = parse(trigger)
     // ignore trigger identity for now
-    // ignore timezone for now, not sure what all the options might be
+    // ignore timezone for now, not sure what all the options might be, the one string in the test cases doesn't seem
+    // to be standardized.
     // no triggerFields for first pass at New Personal Record
     val limit = jsonReq \ "limit" match {
       case JInt(i) => i.toInt
       case JNothing => 50
     }
 
-    val athleteActivityRes: Future[JValue] = StravaClient.getAthleteActivities(token)
-    val activityIdsF = for(JArray(summaryActivites) <- athleteActivityRes)
-      yield this.parseActivites(summaryActivites, ListBuffer(), limit)
+    val athleteActivitiesF: Future[JValue] = StravaClient.getAthleteActivities(token)
+    val activityIdsF = for(JArray(summaryActivites) <- athleteActivitiesF)
+      yield this.parseActivites(summaryActivites, ListBuffer())
 
     val activitiesF: Future[List[Future[List[JValue]]]] = for(activityIds <- activityIdsF)
       yield for(activityId <- activityIds)
         yield for (activity <- StravaClient.getActivity(token, activityId))
           yield this.parseActivity(activity)
 
+    // Tricky bit to remove future nesting
     val effortsF: Future[List[List[JValue]]] = activitiesF.flatMap(effortF => Future.sequence(effortF))
 
     effortsF onComplete {
@@ -97,19 +108,31 @@ trait StravaOptions {
     }
   }
 
+  /**
+   * Recurses through activity list and returns a list of activity id's with achievements associated with them.
+   * @param activities List of json activities
+   * @param result list of activity Id's known to have achievements
+   * @return
+   */
   @tailrec
-  private def parseActivites(activities: List[JValue], result: ListBuffer[BigInt], countDown: Int): List[BigInt] = {
+  private def parseActivites(activities: List[JValue], result: ListBuffer[BigInt]): List[BigInt] = {
     if(activities.isEmpty) result.toList
     else {
       val activity = activities.head
       val JInt(achievementCount) = activity \ "achievement_count"
       if(achievementCount > 0) {
         val JInt(id) = activity \ "id"
-        parseActivites(activities.tail, result += id, countDown - achievementCount.toInt)
-      } else parseActivites(activities.tail, result, countDown)
+        parseActivites(activities.tail, result += id)
+      } else parseActivites(activities.tail, result)
     }
   }
 
+  /**
+   * Extracts personal records from full activity responses. Uses recursive closure to loop the achievements list.
+   * Returns List of personal record results.
+   * @param activity Activity json to be parsed.
+   * @return
+   */
   private def parseActivity(activity: JValue): List[JValue] = {
     val JString(createdAt) = activity \ "start_date"
     val JString(activityName) = activity \ "name"
@@ -149,9 +172,9 @@ trait StravaOptions {
 
 
 /**
- * Actor to provide operations with the Strava API
+ * Actor that handles Request Messages with Strava Operations.
  */
-class StravaActor extends Actor with StravaOptions {
+class StravaActor extends Actor with StravaOperations {
   override def receive: Receive = {
     case GetStatus(channelKey) => sender ! status(channelKey)
     case PostTestSetup(channelKey) => sender ! testSetup(channelKey)
