@@ -14,6 +14,8 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 import scala.util.{Failure, Success}
 
+import com.github.nscala_time.time.Imports._
+
 /**
  * Created by c11z on 5/20/15.
  */
@@ -53,14 +55,15 @@ trait StravaOptions {
    * @param requestor Immutable copy if the sender to resolve future
    */
   def athlete(token: String, requestor: ActorRef) = {
-    val data = for(res <- StravaClient.getAthlete(token)) yield for {
-      JString(first) <- res \ "firstname"
-      JString(last) <- res \ "lastname"
-      JInt(id) <- res \ "id"
-    } yield "data" -> ("name" -> s"$first $last") ~ ("id" -> id.toString)
+    val athleteF = StravaClient.getAthlete(token)
 
-    data onComplete {
-      case Success(content) => requestor ! Http200(content)
+    athleteF onComplete {
+      case Success(athlete) =>
+        val JString(first) = athlete \ "firstname"
+        val JString(last) = athlete \ "lastname"
+        val JInt(id) = athlete \ "id"
+        val json = "data" -> ("name" -> s"$first, $last") ~ ("id" -> id.toString)
+        requestor ! Http200(json)
       case Failure(ex) => requestor ! Http401(ex.getMessage)
     }
   }
@@ -134,7 +137,7 @@ trait StravaOptions {
               ("rank" -> rank.get) ~
               ("created_at" -> createdAt) ~
               ("meta" ->
-                ("id" -> id) ~ ("timestamp" -> (System.currentTimeMillis / 1000)))
+                ("id" -> id.toString()) ~ ("timestamp" -> DateTime.parse(createdAt).getMillis))
           parseEffort(efforts.tail, result += json)
         } else parseEffort(efforts.tail, result)
       }
