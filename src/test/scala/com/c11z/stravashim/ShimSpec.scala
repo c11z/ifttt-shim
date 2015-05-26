@@ -58,7 +58,7 @@ class ShimSpec extends FlatSpec with Matchers with Directives with ScalatestRout
     }
   }
 
-  val cred = GenericHttpCredentials("bearer", s"${test.getString("user-token")}")
+  val cred = GenericHttpCredentials("bearer", s"${test.getString("access-token")}")
   val userHeaders = `Authorization`(cred) :: basicResponseHeaders
 
   "user/info endpoint" should "fail if there is no Authorization Header set" ignore {
