@@ -33,7 +33,7 @@ trait PerRequest extends Actor with Json4sSupport {
 
   def receive = {
     case Http200Empty() => complete(OK)
-    case Http401(messages) => complete(Unauthorized, convertToJson(Map("errors" -> messages)))
+    case Http401(message) => complete(Unauthorized, convertToJson("errors" -> List("message" -> message)))
     case Http200(content) => complete(OK, convertToJson(content))
   }
 

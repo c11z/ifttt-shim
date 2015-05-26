@@ -13,7 +13,7 @@ sealed trait ResponseMessage
  */
 case class Http200(content: Any) extends ResponseMessage
 case class Http200Empty() extends ResponseMessage
-case class Http401(messages: List[Map[String, String]]) extends ResponseMessage
+case class Http401(messages: String) extends ResponseMessage
 
 sealed trait RequestMessage
 
@@ -26,4 +26,11 @@ case class PostTestSetup(channelKey: String) extends RequestMessage
  * @param token OAuth token for strava api request
  */
 case class GetUserInfo(token: String) extends RequestMessage
+
+/**
+ * Message for requesting trigger for new personal records
+ * @param token OAuth token for strava api request
+ * @param trigger Json containing fields specific to the request
+ */
+case class NewPersonalRecord(token: String, trigger: String) extends RequestMessage
 

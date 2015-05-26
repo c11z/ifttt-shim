@@ -2,7 +2,7 @@ package com.c11z.stravashim.api
 
 import akka.actor.{Actor, ActorLogging, Props}
 import com.c11z.stravashim.core.StravaActor
-import com.c11z.stravashim.domain.{GetStatus, GetUserInfo, PostTestSetup, RequestMessage}
+import com.c11z.stravashim.domain._
 import spray.http.MediaTypes.`application/json`
 import spray.httpx.encoding.Gzip
 import spray.routing._
@@ -25,15 +25,24 @@ trait ShimService extends HttpService with PerRequestCreator {
           handlePerRequest {
             GetStatus(channelKey)
           }
-        } ~ (path("test" / "setup") & post) {
+        } ~
+        (path("test" / "setup") & post) {
           handlePerRequest {
             PostTestSetup(channelKey)
           }
         }
-      } ~ headerValueByName("Authorization") { token =>
+      } ~
+      headerValueByName("Authorization") { token =>
         (path("user" / "info") & get) {
           handlePerRequest {
             GetUserInfo(token)
+          }
+        } ~
+        entity(as[String]) { trigger =>
+          (path("triggers" / "new_personal_record") & post) {
+            handlePerRequest {
+              NewPersonalRecord(token, trigger)
+            }
           }
         }
       }
