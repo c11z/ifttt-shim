@@ -14,8 +14,7 @@ import spray.testkit.ScalatestRouteTest
 class ShimSpec extends FlatSpec with Matchers with Directives with ScalatestRouteTest with ShimService {
   def actorRefFactory = system
 
-  val conf = ConfigFactory.load().getConfig("strava")
-  val secret = conf.getConfig("secret")
+  val conf = ConfigFactory.load()
   val test = conf.getConfig("test")
 
   val basicResponseHeaders = List(
@@ -23,7 +22,7 @@ class ShimSpec extends FlatSpec with Matchers with Directives with ScalatestRout
     `Accept-Charset`(`UTF-8`),
     RawHeader("X-Request-ID", "0715f98e65f749aba2fc243eac1e3c09")
   )
-  val testHeaders = RawHeader("IFTTT-Channel-Key", secret.getString("ifttt-channel-key")) :: basicResponseHeaders
+  val testHeaders = RawHeader("IFTTT-Channel-Key", test.getString("fake-channel-key")) :: basicResponseHeaders
 
   val badTestHeaders = RawHeader("IFTTT-Channel-Key", "INVALID") :: basicResponseHeaders
 
@@ -58,7 +57,7 @@ class ShimSpec extends FlatSpec with Matchers with Directives with ScalatestRout
     }
   }
 
-  val cred = GenericHttpCredentials("bearer", s"${test.getString("access-token")}")
+  val cred = GenericHttpCredentials("bearer", s"${test.getString("fake-access-token")}")
   val userHeaders = `Authorization`(cred) :: basicResponseHeaders
 
   "user/info endpoint" should "fail if there is no Authorization Header set" ignore {

@@ -13,20 +13,21 @@ import org.json4s.native.JsonMethods._
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
-import scala.util.{Failure, Success}
+import scala.util.{Properties, Failure, Success}
 
 /**
  * Describes operations with the Strava API in response to IFTTT requests.
  */
 trait StravaOperations {
-  val conf = ConfigFactory.load().getConfig("strava")
-  val secret = conf.getConfig("secret")
+  val conf = ConfigFactory.load()
   val test = conf.getConfig("test")
 
   implicit val formats = DefaultFormats
 
   def validateChannelKey(channelKey: String): Boolean = {
-    if(channelKey == secret.getString("ifttt-channel-key")) true else false
+    val fakeChannelKey = test.getString("fake-channel-key")
+    val trueChannelKey = Properties.envOrElse("STRAVA_CHANNEL_KEY", fakeChannelKey)
+    if(channelKey == trueChannelKey) true else false
   }
 
   def status(channelKey: String) = {
@@ -44,7 +45,8 @@ trait StravaOperations {
   def testSetup(channelKey: String) = {
     validateChannelKey(channelKey) match {
       case true =>
-        val token = test.getString("access-token")
+        val fakeToken = test.getString("fake-access-token")
+        val token = Properties.envOrElse("STRAVA_ACCESS_TOKEN", fakeToken)
         val content = "data" -> ("accessToken" -> token) ~ ("samples" -> Nil)
         Http200(content)
       case false => Http401("The Channel Key is present but not valid for this channel")
@@ -85,7 +87,7 @@ trait StravaOperations {
     // no triggerFields for first pass at New Personal Record
     val limit = jsonReq \ "limit" match {
       case JInt(i) => i.toInt
-      case JNothing => 50
+      case _ => 50
     }
 
     val athleteActivitiesF: Future[JValue] = StravaClient.getAthleteActivities(token)
