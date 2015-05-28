@@ -1,4 +1,4 @@
-package com.c11z.stravashim.core
+package com.c11z.stravashim.channel.strava
 
 import akka.actor.{Actor, ActorRef}
 import com.c11z.stravashim.domain._
@@ -13,7 +13,7 @@ import org.json4s.native.JsonMethods._
 
 import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
-import scala.util.{Properties, Failure, Success}
+import scala.util.{Failure, Properties, Success}
 
 /**
  * Describes operations with the Strava API in response to IFTTT requests.

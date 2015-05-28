@@ -18,7 +18,7 @@ object Boot extends App {
   // create and start our service actor
   val service = system.actorOf(Props[ShimActor], "strava-shim-service")
 
-  // !!IMPORTANT Allowing port to be sourced from Properties is what makes Heroku work!!
+  // !!IMPORTANT!! Allowing port to be sourced from Properties is what makes Heroku work!!
   val port = Properties.envOrElse("PORT", "8080").toInt
   implicit val timeout = Timeout(5.seconds)
 

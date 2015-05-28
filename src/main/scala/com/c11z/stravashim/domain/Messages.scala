@@ -15,9 +15,13 @@ case class Http401(messages: String) extends ResponseMessage
  * Request messages are endpoint specific, and have unique combinations of parameters and actor handlers.
  */
 sealed trait RequestMessage
-// TODO: Might want to break seal and move this into shim domain.
+
+/**
+ * Strava Specific RequestMessage
+ */
 case class GetStatus(channelKey: String) extends RequestMessage
 case class PostTestSetup(channelKey: String) extends RequestMessage
 case class GetUserInfo(token: String) extends RequestMessage
 case class NewPersonalRecord(token: String, trigger: String) extends RequestMessage
 
+/** NEW Channel RequestMessages Here **/

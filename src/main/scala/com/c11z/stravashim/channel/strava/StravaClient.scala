@@ -1,4 +1,4 @@
-package com.c11z.stravashim.core
+package com.c11z.stravashim.channel.strava
 
 import com.typesafe.config.ConfigFactory
 import dispatch.Defaults._

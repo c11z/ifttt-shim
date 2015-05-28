@@ -1,47 +1,66 @@
 package com.c11z.stravashim.api
 
 import akka.actor.{Actor, ActorLogging, Props}
-import com.c11z.stravashim.core.StravaActor
+import com.c11z.stravashim.channel.strava.StravaActor
 import com.c11z.stravashim.domain._
-import spray.http.MediaTypes.`application/json`
+import spray.http.MediaTypes.{`application/json`, `text/html`}
 import spray.httpx.encoding.Gzip
 import spray.routing._
 
 import scala.concurrent.ExecutionContextExecutor
 
-
-class ShimActor extends Actor with ShimService with ActorLogging {
+/**
+ * Main Actor for routes. To extend:
+ *        1. Create new channelRoute in ShimService
+ *        2. Add it to the runRoute
+ *        3. Create new {channel}PerHandler in ShimService and reference {Channel}Actor
+ *        4. Profit
+ */
+class ShimActor extends Actor with ActorLogging with ShimService {
   def actorRefFactory = context
-  def receive = runRoute(shimRoute)
+  def receive = runRoute(shimRoute ~ stravaRoute)
 }
 
 trait ShimService extends HttpService with PerRequestCreator {
   implicit def executionContext: ExecutionContextExecutor = actorRefFactory.dispatcher
 
-  // TODO: Eventually source routes from specific domains that way the shim can stay unopinionated.
   val shimRoute = {
-    (pathPrefix("ifttt" / "v1") & respondWithMediaType(`application/json`) & encodeResponse(Gzip)) {
+    path("") {
+      respondWithMediaType(`text/html`) {
+        get {
+          complete(
+            """<http>
+            | <h1>Welcome to IFTTT-Shim</h1>
+            |</http>
+          """.stripMargin)
+        }
+      }
+    }
+  }
+
+  /**
+   * Route for Strava Shim
+   */
+  val stravaRoute = {
+    (pathPrefix("strava" / "ifttt" / "v1") & respondWithMediaType(`application/json`) & encodeResponse(Gzip)) {
       headerValueByName("IFTTT-Channel-Key") { channelKey =>
         (path("status") & get) {
-          handlePerRequest {
+          stravaPerRequest {
             GetStatus(channelKey)
           }
-        } ~
-        (path("test" / "setup") & post) {
-          handlePerRequest {
+        } ~ (path("test" / "setup") & post) {
+          stravaPerRequest {
             PostTestSetup(channelKey)
           }
         }
-      } ~
-      headerValueByName("Authorization") { token =>
+      } ~ headerValueByName("Authorization") { token =>
         (path("user" / "info") & get) {
-          handlePerRequest {
+          stravaPerRequest {
             GetUserInfo(token)
           }
-        } ~
-        entity(as[String]) { trigger =>
+        } ~ entity(as[String]) { trigger =>
           (path("triggers" / "new_personal_record") & post) {
-            handlePerRequest {
+            stravaPerRequest {
               NewPersonalRecord(token, trigger)
             }
           }
@@ -50,6 +69,10 @@ trait ShimService extends HttpService with PerRequestCreator {
     }
   }
 
-  def handlePerRequest(message: RequestMessage): Route =
+  def stravaPerRequest(message: RequestMessage): Route =
     ctx => perRequest(actorRefFactory, ctx, Props[StravaActor], message)
+
+  /*** Put new Channel HttpService trait HERE! ***/
+  // {channel}Route = ???
+  // def {channel}PerRequest(message: RequestMessage): Route = ???
 }
