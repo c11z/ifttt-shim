@@ -40,8 +40,40 @@ IFTTT-Shim makes use of the Spray routing DSL and uses the per request actor mod
 * Generalize the architecture more so that it can accommodate multiple api shims.
 * Diagram architecture and include it in this document.
 
+## Getting Started
+The goal of IFTTT-Shim is to be a generic shim solution for any channel you might like to integrate with. It is designed so that you can easily add multiple channels to one app, making it's hosting very cost effective.  
+
+IFTTT-Shim requires two environment variables to be set for each channel the app integrates with.
+
+```
+{CHANNEL_NAME}_CHANNEL_KEY={channel-key-from-ifttt}
+
+{CHANNEL_NAME}_ACCESS_TOKEN={test-account-o-auth-token}
+```
+
+Each channel that you set up in your IFTTT developer account will get a unique channel key and require you to have a test account set up, which will require a valid OAuth token for the specific channel api you are shimming for. Add these variables into your IDE, bash, and/or Heroku's config tool.
+
+
+Run tests with:
+
+```
+> sbt test
+```
+
+Use revolver start and stop the app
+
+```
+> sbt
+sbt> re-start
+...
+sbt> re-stop
+```
+
+### Heroku
+IFTTT-Shim is configured to run on Heroku. The native packager sbt plugin and procfile are already present. Simply use `heroku config:set` to tell heroku the channel key's and access token's for your channels and git push the app to the heroku remote.
 
 ## Issues
 The biggest issue is that supporting api intensive triggers like new\_personal\_record exhausts the rate limit pretty quickly, Continuous polling only allows 30,000 api calls per day, about 300 every 15 minutes which can only support ~15 users.
 
 Either Strava needs to make their api more query efficient or one would need to negotiate a more generous api rate limit. As a personal shim for myself and couple of friends this would be acceptable. 
+
