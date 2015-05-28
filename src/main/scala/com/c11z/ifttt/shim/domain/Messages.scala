@@ -1,5 +1,4 @@
-package com.c11z.stravashim.domain
-
+package com.c11z.ifttt.shim.domain
 
 /**
  * Response Messages are organized by Http Status Codes and their payloads.

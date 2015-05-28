@@ -1,8 +1,8 @@
-package com.c11z.stravashim.api
+package com.c11z.ifttt.shim.api
 
 import akka.actor.{Actor, ActorLogging, Props}
-import com.c11z.stravashim.channel.strava.StravaActor
-import com.c11z.stravashim.domain._
+import com.c11z.ifttt.shim.channel.strava.StravaActor
+import com.c11z.ifttt.shim.domain._
 import spray.http.MediaTypes.{`application/json`, `text/html`}
 import spray.httpx.encoding.Gzip
 import spray.routing._

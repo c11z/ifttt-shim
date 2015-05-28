@@ -1,6 +1,6 @@
-package com.c11z.stravashim
+package com.c11z.ifttt.shim
 
-import com.c11z.stravashim.api.ShimService
+import com.c11z.ifttt.shim.api.ShimService
 import com.typesafe.config.ConfigFactory
 import org.scalatest.{FlatSpec, Matchers}
 import spray.http.GenericHttpCredentials

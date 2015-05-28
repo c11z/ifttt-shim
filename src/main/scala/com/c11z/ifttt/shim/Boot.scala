@@ -1,10 +1,10 @@
-package com.c11z.stravashim
+package com.c11z.ifttt.shim
 
 import akka.actor.{ActorSystem, Props}
 import akka.io.IO
 import akka.pattern.ask
 import akka.util.Timeout
-import com.c11z.stravashim.api.ShimActor
+import com.c11z.ifttt.shim.api.ShimActor
 import spray.can.Http
 
 import scala.concurrent.duration._

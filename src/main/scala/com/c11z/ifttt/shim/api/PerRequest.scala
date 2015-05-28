@@ -1,9 +1,9 @@
-package com.c11z.stravashim.api
+package com.c11z.ifttt.shim.api
 
 import akka.actor.SupervisorStrategy.Stop
 import akka.actor._
-import com.c11z.stravashim.api.PerRequest.WithProps
-import com.c11z.stravashim.domain.{Http200, Http200Empty, Http401, RequestMessage}
+import com.c11z.ifttt.shim.api.PerRequest.WithProps
+import com.c11z.ifttt.shim.domain._
 import org.json4s.{DefaultFormats, _}
 import spray.http.StatusCodes._
 import spray.http.{HttpHeader, StatusCode}

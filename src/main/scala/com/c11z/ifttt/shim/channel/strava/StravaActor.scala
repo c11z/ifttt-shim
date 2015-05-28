@@ -1,7 +1,7 @@
-package com.c11z.stravashim.channel.strava
+package com.c11z.ifttt.shim.channel.strava
 
 import akka.actor.{Actor, ActorRef}
-import com.c11z.stravashim.domain._
+import com.c11z.ifttt.shim.domain._
 import com.github.nscala_time.time.Imports._
 import com.typesafe.config.ConfigFactory
 import dispatch.Defaults._
