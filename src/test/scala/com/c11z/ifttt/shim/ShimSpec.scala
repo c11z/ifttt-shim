@@ -27,32 +27,32 @@ class ShimSpec extends FlatSpec with Matchers with Directives with ScalatestRout
   val badTestHeaders = RawHeader("IFTTT-Channel-Key", "INVALID") :: basicResponseHeaders
 
   "StravaShim for IFTTT" should "not find anything at home" in {
-    Get() ~> shimRoute ~> check {
+    Get() ~> stravaRoute ~> check {
       handled should be(false)
     }
   }
 
   "Status endpoint" should "succeed if passed proper Channel Key" in {
-    Get("/ifttt/v1/status").withHeaders(testHeaders) ~> shimRoute ~> check {
+    Get("/strava/ifttt/v1/status").withHeaders(testHeaders) ~> stravaRoute ~> check {
       status should equal(OK)
       mediaType should equal(`application/json`)
     }
   }
 
   it should "fail if the the Channel Key is invalid" in {
-    Get("/ifttt/v1/status").withHeaders(badTestHeaders) ~> shimRoute ~> check {
+    Get("/strava/ifttt/v1/status").withHeaders(badTestHeaders) ~> stravaRoute ~> check {
       status should equal(Unauthorized)
     }
   }
 
   "test/setup endpoint" should "Allow post request and return an accessToken" in {
-    Post("/ifttt/v1/test/setup").withHeaders(testHeaders) ~> shimRoute ~> check {
+    Post("/strava/ifttt/v1/test/setup").withHeaders(testHeaders) ~> stravaRoute ~> check {
       status should equal(OK)
     }
   }
 
   it should "Fail post request if the Channel Key is invalid" in {
-    Post("/ifttt/v1/test/setup").withHeaders(badTestHeaders) ~> shimRoute ~> check {
+    Post("/strava/ifttt/v1/test/setup").withHeaders(badTestHeaders) ~> stravaRoute ~> check {
       status should equal(Unauthorized)
     }
   }
@@ -61,7 +61,7 @@ class ShimSpec extends FlatSpec with Matchers with Directives with ScalatestRout
   val userHeaders = `Authorization`(cred) :: basicResponseHeaders
 
   "user/info endpoint" should "fail if there is no Authorization Header set" ignore {
-    Post("/ifttt/v1/user/info") ~> shimRoute ~> check {
+    Post("/strava/ifttt/v1/user/info") ~> stravaRoute ~> check {
       status should equal(Unauthorized)
     }
   }
