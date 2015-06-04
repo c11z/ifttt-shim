@@ -22,5 +22,5 @@ case class GetStatus(channelKey: String) extends RequestMessage
 case class PostTestSetup(channelKey: String) extends RequestMessage
 case class GetUserInfo(token: String) extends RequestMessage
 case class NewPersonalRecord(token: String, trigger: String) extends RequestMessage
-
+case class NewActivity(token: String,  trigger: String) extends RequestMessage
 /** NEW Channel RequestMessages Here **/

@@ -59,9 +59,15 @@ trait ShimService extends HttpService with PerRequestCreator {
             GetUserInfo(token)
           }
         } ~ entity(as[String]) { trigger =>
-          (path("triggers" / "new_personal_record") & post) {
-            stravaPerRequest {
-              NewPersonalRecord(token, trigger)
+          pathPrefix("triggers") {
+            (path("new_personal_record") & post) {
+              stravaPerRequest {
+                NewPersonalRecord(token, trigger)
+              }
+            } ~ (path("new_activity") & post) {
+              stravaPerRequest {
+                NewActivity(token, trigger)
+              }
             }
           }
         }

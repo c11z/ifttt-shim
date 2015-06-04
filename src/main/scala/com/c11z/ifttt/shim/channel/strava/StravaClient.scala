@@ -12,8 +12,6 @@ import org.json4s.native.JsonMethods._
 object StravaClient {
   val stravaHttp = new Http
   val stravaHost = host("www.strava.com/api/v3/").secure
-  val config = ConfigFactory.load()
-  val stravaConfig = config.getConfig("strava")
 
   val asJson: Res => JValue = as.Response { res =>
     parse(res.getResponseBody)
@@ -26,10 +24,10 @@ object StravaClient {
     stravaHttp(req OK asJson)
   }
 
-  def getAthleteActivities(token: String) = {
+  def getAthleteActivities(token: String, limit: String) = {
     val req = (stravaHost / "athlete" / "activities")
       .addHeader("Authorization", token)
-      .addParameter("limit", stravaConfig.getString("athlete-activity-limit"))
+      .addParameter("per_page", limit)
       .GET
     stravaHttp(req OK asJson)
   }
