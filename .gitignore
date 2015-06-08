@@ -17,3 +17,5 @@ src_managed/
 project/plugins/project/
 
 .idea/
+
+.DS_Store
